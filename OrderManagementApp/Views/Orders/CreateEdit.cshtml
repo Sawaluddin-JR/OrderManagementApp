@@ -1,0 +1,57 @@
+﻿  @* @model Order
+
+  <h2>Create/Edit Order</h2>
+
+  <form method="post" action="/api/orders">
+      <label>Order Number:</label>
+      <input type="text" name="OrderNumber" value="@Model.OrderNumber" required />
+
+      <label>Order Date:</label>
+      <input type="date" name="OrderDate" value="@Model.OrderDate.ToString("yyyy-MM-dd")" required />
+
+      <h3>Items</h3>
+      <table id="itemsTable">
+          <thead>
+              <tr>
+                  <th>Item Name</th>
+                  <th>Quantity</th>
+                  <th>Price</th>
+                  <th>Actions</th>
+              </tr>
+          </thead>
+          <tbody>
+              @foreach (var item in Model.Items)
+              {
+                  <tr>
+                      <td><input type="text" name="Items[@item.ItemId].ItemName" value="@item.ItemName" required /></td>
+                      <td><input type="number" name="Items[@item.ItemId].Quantity" value="@item.Quantity" required /></td>
+                      <td><input type="number" name="Items[@item.ItemId].Price" value="@item.Price" required /></td>
+                      <td>
+                          <button type="button" onclick="deleteRow(this)">Delete</button>
+                      </td>
+                  </tr>
+              }
+          </tbody>
+      </table>
+      <button type="button" onclick="addRow()">Add Item</button>
+
+      <button type="submit">Save</button>
+      <a href="/">Cancel</a>
+  </form>
+
+  <script>
+      function addRow() {
+          var table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
+          var row = table.insertRow();
+          row.innerHTML = `
+              <td><input type="text" name="Items[].ItemName" required /></td>
+              <td><input type="number" name="Items[].Quantity" required /></td>
+              <td><input type="number" name="Items[].Price" required /></td>
+              <td><button type="button" onclick="deleteRow(this)">Delete</button></td>`;
+      }
+
+      function deleteRow(button) {
+          button.closest('tr').remove();
+      }
+  </script>
+ *@

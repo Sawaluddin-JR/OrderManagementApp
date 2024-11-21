@@ -1,0 +1,65 @@
+﻿@using OrderManagementApp.Models
+@model OrderListModel
+
+<h2>Order List</h2>
+<input type="text" id="keyword" value="@Model.Keyword" placeholder="Search by Order Number" />
+<input type="date" id="orderDate" value="@Model.OrderDate?.ToString("yyyy-MM-dd")" />
+<button onclick="searchOrders()">Search</button>
+
+<table id="ordersTable">
+    <thead>
+        <tr>
+            <th>Order Number</th>
+            <th>Order Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model.Orders)
+        {
+            <tr>
+                <td>@order.OrderNumber</td>
+                <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
+                <td>
+                    <button onclick="editOrder(@order.OrderId)">Edit</button>
+                    <button onclick="deleteOrder(@order.OrderId)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    function searchOrders() {
+        var keyword = document.getElementById("keyword").value;
+        var orderDate = document.getElementById("orderDate").value;
+
+        fetch(`/api/orders/list?keyword=${keyword}&orderDate=${orderDate}`)
+            .then(response => response.json())
+            .then(data => {
+                var table = document.getElementById("ordersTable").getElementsByTagName('tbody')[0];
+                table.innerHTML = '';
+                data.orders.forEach(order => {
+                    var row = table.insertRow();
+                    row.insertCell(0).textContent = order.orderNumber;
+                    row.insertCell(1).textContent = order.orderDate;
+                    row.insertCell(2).innerHTML = `
+                        <button onclick="editOrder(${order.orderId})">Edit</button>
+                        <button onclick="deleteOrder(${order.orderId})">Delete</button>
+                    `;
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function editOrder(orderId) {
+        window.location.href = `/orders/edit/${orderId}`;
+    }
+
+    function deleteOrder(orderId) {
+        if (confirm("Are you sure you want to delete this order?")) {
+            fetch(`/api/orders/${orderId}`, { method: 'DELETE' })
+                .then(() => searchOrders());
+        }
+    }
+</script>
